@@ -21,7 +21,9 @@ module.exports = {
                 ctx.throw(400, "Please upload an Image")
             }
 
-            entity = await strapi.services.post.create({...data, likes: 0}, {files})
+            const {user} = ctx.state
+
+            entity = await strapi.services.post.create({...data, ...{likes: 0, author: user}}, {files})
         } else {
             ctx.throw(400, "Please use multipart/form-data")
         }
