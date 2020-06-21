@@ -46,5 +46,32 @@ module.exports = {
         })
 
         return sanitizeEntity(entity, {model: strapi.models.like})
+    },
+
+    async delete(ctx){
+        const {user} = ctx.state
+        const {postId} = ctx.params
+
+        const post = parseInt(postId)
+
+        if(typeof post !== 'number'){
+            ctx.throw(400, "Please only use the id of the post")
+        }
+
+        const entity = await strapi.services.like.delete({
+            post,
+            user: user.id
+        })
+
+        if(entity.length){
+            const {likes} = entity[0].post
+            const updatedPost = await strapi.services.post.update({
+                id: post
+            }, {
+                likes: likes - 1
+            })
+
+            return sanitizeEntity(entity[0], {model: strapi.models.like})
+        }
     }
 };
